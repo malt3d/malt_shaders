@@ -1,7 +1,7 @@
 #version 330
 
-in vec4 world_position;
-in vec4 world_normal;
+in vec3 world_position;
+in vec3 world_normal;
 
 out vec4 final_color;
 
@@ -25,8 +25,8 @@ struct Material
     float phong_exponent;
 };
 
-uniform vec3 ambient_light;
 uniform Material material;
+uniform vec3 ambient_light;
 uniform PointLight point_light[8];
 uniform int number_of_point_lights;
 uniform DirectionalLight directional_light;
@@ -39,23 +39,21 @@ vec3 computeReflectance(Material material, vec3 to_light, vec3 normal, vec3 to_e
 
 void main()
 {
-    //Diffuse
     vec3 color = material.ambient * ambient_light;
 
-    vec3 to_eye = normalize(camera_position - world_position.xyz);
+    vec3 to_eye = normalize(camera_position - world_position);
 
     for (int i = 0; i < number_of_point_lights; ++i)
     {
-        vec3 to_light = point_light[i].position - world_position.xyz;
+        vec3 to_light = point_light[i].position - world_position;
         float distance = length(to_light);
         to_light /= distance;
-        color += computeReflectance(material, to_light, world_normal.xyz, to_eye) * computeRadiancePointLight(point_light[i], distance);
+        color += computeReflectance(material, to_light, world_normal, to_eye) * computeRadiancePointLight(point_light[i], distance);
     }
 
     vec3 to_light = -directional_light.direction;
-    color += computeReflectance(material, to_light, world_normal.xyz, to_eye) * computeRadianceDirectionalLight(directional_light);
+    color += computeReflectance(material, to_light, world_normal, to_eye) * computeRadianceDirectionalLight(directional_light);
 
-    //Specular
 	final_color = vec4(color, 1.0f);
 }
 
