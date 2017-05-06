@@ -1,7 +1,8 @@
 #version 330
 
-in vec3 world_position;
-in vec3 world_normal;
+in vec4 world_position;
+in vec4 world_normal;
+in vec2 frag_uv;
 
 out vec4 final_color;
 
@@ -31,6 +32,7 @@ uniform PointLight point_light[8];
 uniform int number_of_point_lights;
 uniform DirectionalLight directional_light;
 uniform vec3 camera_position;
+uniform sampler2D tex;
 
 vec3 computeRadiancePointLight(PointLight pointlight, float distance);
 vec3 computeRadianceDirectionalLight(DirectionalLight directional_light);
@@ -69,7 +71,7 @@ vec3 computeRadianceDirectionalLight(DirectionalLight directional_light)
 
 vec3 computeReflectance(Material material, vec3 to_light, vec3 normal, vec3 to_eye)
 {
-    vec3 diffuse_reflectance = max(dot(to_light, normal), 0.0f) * material.diffuse;
+    vec3 diffuse_reflectance = max(dot(to_light, normal), 0.0f) * texture(tex, frag_uv).rgb;
     vec3 specular_reflectance = pow(max(dot(normalize(to_light + to_eye), normal), 0.0f), material.phong_exponent) * material.specular;
 
     return diffuse_reflectance + specular_reflectance;
