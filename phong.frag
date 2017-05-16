@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 
 in vec4 world_position;
 in vec4 world_normal;

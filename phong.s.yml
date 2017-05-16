@@ -1,0 +1,4 @@
+shader:
+  name: "phong"
+  vertex_shader: "phong.vert"
+  fragment_shader: "phong.frag"
