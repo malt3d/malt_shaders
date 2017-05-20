@@ -15,6 +15,6 @@ void main()
 {
     world_position = model * vec4(position, 1.0);
     world_normal = transpose(inverse(model)) * vec4(normal, 0.0f);
-	gl_Position = model * vp * vec4(position, 1.0);
+	gl_Position = vp * model * vec4(position, 1.0);
 	frag_uv = uv;
 }
