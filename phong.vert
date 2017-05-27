@@ -14,7 +14,7 @@ uniform mat4 vp;
 void main()
 {
     world_position = model * vec4(position, 1.0);
-    world_normal = transpose(inverse(model)) * vec4(normal, 0.0f);
+    world_normal = vec4(normalize(vec3(transpose(inverse(model)) * vec4(normal, 0.0f))), 0);
 	gl_Position = vp * model * vec4(position, 1.0);
 	frag_uv = uv;
 }

@@ -34,6 +34,14 @@ uniform DirectionalLight directional_light;
 uniform vec3 camera_position;
 uniform sampler2D tex;
 
+vec3 get_diffuse()
+{
+#ifdef HAS_UV
+    return texture(tex, frag_uv).rgb;
+#endif
+    return material.diffuse;
+}
+
 vec3 computeRadiancePointLight(PointLight pointlight, float distance);
 vec3 computeRadianceDirectionalLight(DirectionalLight directional_light);
 vec3 computeDiffuseReflectance(Material material, vec3 to_light, vec3 normal);
@@ -71,7 +79,7 @@ vec3 computeRadianceDirectionalLight(DirectionalLight directional_light)
 
 vec3 computeReflectance(Material material, vec3 to_light, vec3 normal, vec3 to_eye)
 {
-    vec3 diffuse_reflectance = max(dot(to_light, normal), 0.0f) * texture(tex, frag_uv).rgb;
+    vec3 diffuse_reflectance = max(dot(to_light, normal), 0.0f) * get_diffuse();
     vec3 specular_reflectance = pow(max(dot(normalize(to_light + to_eye), normal), 0.0f), material.phong_exponent) * material.specular;
 
     return diffuse_reflectance + specular_reflectance;
