@@ -1,5 +1,6 @@
 #version 330 core
 
+in vec4 light_pos;
 in vec4 world_position;
 in vec4 world_normal;
 in vec2 frag_uv;
@@ -33,6 +34,7 @@ uniform int number_of_point_lights;
 uniform DirectionalLight directional_light;
 uniform vec3 camera_position;
 uniform sampler2D tex;
+uniform sampler2D shadowTex;
 
 vec3 get_diffuse()
 {
@@ -40,6 +42,16 @@ vec3 get_diffuse()
     return texture(tex, frag_uv).rgb;
 #endif
     return material.diffuse;
+}
+
+float visible(PointLight l)
+{
+    float bias = max(0.05 * (1.0 - dot(vec3(world_normal), normalize(l.position - vec3(world_position)))), 0.005);
+    vec3 projCoords = light_pos.xyz / light_pos.w;
+    projCoords = projCoords * 0.5 + 0.5;
+    float closestDepth = texture(shadowTex, projCoords.xy).r;
+    float currentDepth = projCoords.z;
+    return currentDepth - bias/2 > closestDepth ? 0.0 : 1.0;
 }
 
 vec3 computeRadiancePointLight(PointLight pointlight, float distance);
@@ -58,13 +70,14 @@ void main()
         vec3 to_light = point_light[i].position - vec3(world_position);
         float distance = length(to_light);
         to_light /= distance;
-        color += computeReflectance(material, to_light, vec3(world_normal), to_eye) * computeRadiancePointLight(point_light[i], distance);
+        color += computeReflectance(material, to_light, vec3(world_normal), to_eye) * computeRadiancePointLight(point_light[i], distance) * visible(point_light[i]);
     }
 
     vec3 to_light = -directional_light.direction;
     color += computeReflectance(material, to_light, vec3(world_normal), to_eye) * computeRadianceDirectionalLight(directional_light);
 
 	final_color = vec4(color, 1.0f);
+	//final_color = vec4(texture(shadowTex, gl_FragCoord.xy/1024.f).r, texture(shadowTex, gl_FragCoord.xy/1024.f).r, texture(shadowTex, gl_FragCoord.xy/1024.f).r, 1.0f);
 }
 
 vec3 computeRadiancePointLight(PointLight point_light, float distance)

@@ -1,0 +1,4 @@
+shader:
+  name: "shadow"
+  vertex_shader: "shadow.vert"
+  fragment_shader: "shadow.frag"
